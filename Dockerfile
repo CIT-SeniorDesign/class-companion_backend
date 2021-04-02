@@ -1,4 +1,4 @@
-FROM alpine:3.13.2
+FROM alpine:3.13.4
 
 #MAINTAINER Cidney Marbella, cidney.marbella.178@my.csun.edu # <name>
 

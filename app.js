@@ -10,7 +10,6 @@ const passport = require('passport');
 const bodyParser = require('body-parser');
 const LocalStrategy = require('passport-local');
 const bcrypt = require('bcrypt');
-const flash = require('express-flash');
 const session = require('express-session');
 
 const app = express();
@@ -28,7 +27,6 @@ let users = [];
 
 // This allows input to be accessed through requests and POSTS
 app.use(express.urlencoded({ extended: false }))
-app.use(flash())
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false, // this does not change session variable if nothing is changed
@@ -36,6 +34,7 @@ app.use(session({
 }))
 app.use(passport.initialize()) // sets up initial basic configuration of passport
 app.use(passport.session()) // itneracts with the app.use session above
+app.use(express.json()) // TESTING PURPOSES
 
 
 // Routes
@@ -44,40 +43,67 @@ app.get('/', (req, res) => {
 }); 
 
 // Register routes
-app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname + '/views/register.html'));
+app.get('/test', (req, res) => {
+    res.json(users); // return users array
 }); 
 
-app.post('/register', async (req, res) => {
-    try {
-        // This will hash users password and store into users array
-        console.log(req.body);
-        let hashedPassword = await bcrypt.hash(req.body.password, 10);
-
-        // push user data into 
-        users.push({
-            id: Date.now().toString(),
-            name: req.body.name,
-            email: req.body.email,
-            password: hashedPassword
-            })
-        res.redirect('/login') // Redirect to login after registering
-    } catch {
-        res.redirect('/register') // If failed redirect to register
+app.post('/test', async (req, res) => {
+    try{
+        const hashedPassword = await bcrypt.hash(req.body.password, 10) // create hashed password
+        console.log(hashedPassword)
+        const user = { name: req.body.name, password: hashedPassword } // get name and password 
+        users.push(user) // push user into users array
+        res.status(201).send() // if done successfully send 201 status
+    } catch{
+        res.status(500).send() // else send 500 status 
     }
-    console.log(users);
 })
 
-// Login routes
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname + '/views/login.html'));
-});
+app.post('/test/login', async (req, res) => {
+    const user = users.find(user => user.name = req.body.name)
+    if (user == null) {
+        return res.status(400).send('Cannot find user') // if user is null send user not found
+    }
+    try{
+        if (await bcrypt.compare(req.body.password, user.password)){ // compare hashed password with inputted password
+            res.send('Success')
+        } else {
+            res.send('Not Allowed')
+        }
+    } catch {
+        res.status(500).send()
+    }
+})
 
-app.post('/login', passport.authenticate('local', {
-    successRedirect: '/', // redirect to successful login 
-    failureRedirect: '/login', // redirect to failed login
-    failureFlash: true // this allows error message to be outputed to user
-}))
+// app.post('/register', async (req, res) => {
+//     try {
+//         // This will hash users password and store into users array
+//         console.log(req.body);
+//         let hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+//         // push user data into 
+//         users.push({
+//             id: Date.now().toString(),
+//             name: req.body.name,
+//             email: req.body.email,
+//             password: hashedPassword
+//             })
+//         res.redirect('/login') // Redirect to login after registering
+//     } catch {
+//         res.redirect('/register') // If failed redirect to register
+//     }
+//     console.log(users);
+// })
+
+// app.get('/login', (req, res) => {
+//     res.sendFile(path.join(__dirname + '/views/login.html'));
+// });
+
+// app.post('/login', passport.authenticate('local', {
+//     successRedirect: '/', // redirect to successful login 
+//     failureRedirect: '/login', // redirect to failed login
+// }))
+
 
 // calls port to listen to 
 app.listen(3000, ()=> console.log('Server running on http://localhost:3000'));

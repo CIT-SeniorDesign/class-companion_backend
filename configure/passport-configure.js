@@ -8,6 +8,7 @@ function initialize(passport, getUserByEmail){
         const user = getUserByEmail(email) // Get user by email
         if (user == null){ // If email is null then return 
             return done(null, false, { message: 'No user is found with that email'})
+            console.log('No user found');
         }
 
         try{

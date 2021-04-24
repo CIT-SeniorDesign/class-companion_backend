@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+    <h1>Register</h1>
+    <body>
+    <form action="/register" id="registerForm" onsubmit="testRegister(event)" method="POST">
+        <div>
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" value="name" required>
+        </div>
+        <div>
+            <label for="email">Email</label>
+            <input type="email" id="email  " name="email" value="email" email>
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" value="password" required>
+        </div>
+        <button type="submit">Register</button>
+    </form>
+    <a href="/login">Login</a>
+    </body>
+
+    <script>
+        function testRegister(event) {
+            // Get inputs from form
+            const formInputs = Array.from(document.querySelectorAll('#registerForm input'))
+
+            // Prevent refresh
+            event.preventDefault()
+
+            // Grab form input values
+            let valueArray = []
+            for (let i = 0; i < formInputs.length; i++) {
+                valueArray.push(formInputs[i].value)
+            }
+
+            // Prepare values in object
+            const formObject = {
+                name: valueArray[0],
+                email: valueArray[1],
+                password: valueArray[2]
+            }
+
+            console.log('final', formObject)
+
+            // Call back-end POST route using prepared formObject
+            let response = await fetch('/register', {
+                method: 'POST',
+                body: formObject
+            })
+                .then(response => response.json())
+
+        }
+    </script>
+</html>

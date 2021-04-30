@@ -3,10 +3,10 @@ name: CI/CD
 on:
   push:
     branches:
-      - #dev
+      - dev
   pull_request:
     branches:
-      - #dev
+      - dev
 
 jobs:
   buildAndTest:
@@ -59,7 +59,7 @@ jobs:
       - name: Run build
         run: npm run build
 
-      # Install AWS CLI 2
+      # Install AWS CLI 2 
       - name: Install AWS CLI 2
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"

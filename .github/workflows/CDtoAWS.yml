@@ -30,3 +30,15 @@ jobs:
         run: npm install
       - name: Run build
         run: npm run build
+
+ deploy:
+    name: CD Pipeline
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+        node-version: ['12.x']
+        appname: ['aws-codedeploy']
+        deploy-group: ['staging']
+        s3-bucket: ['ccaws-codedeploy-deployments']
+        s3-filename: ['staging-aws-codedeploy-${{ github.sha }}']

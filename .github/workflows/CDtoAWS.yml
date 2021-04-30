@@ -42,3 +42,26 @@ jobs:
         deploy-group: ['staging']
         s3-bucket: ['ccaws-codedeploy-deployments']
         s3-filename: ['staging-aws-codedeploy-${{ github.sha }}']
+
+    needs: buildAndTest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Initialize Node.js
+      - name: Install Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # Install project dependencies and build
+      - name: Install dependencies
+        run: npm install
+      - name: Run build
+        run: npm run build
+
+      # Install AWS CLI 2
+      - name: Install AWS CLI 2
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install

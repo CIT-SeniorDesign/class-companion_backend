@@ -23,8 +23,8 @@ app.use(function(err, req, res, next) {
     res.end()
 });
 
-app.listen(8000, () => {
-    console.log('Example app listening on port 8000!')
+app.listen(process.env.PORT, () => {
+    console.log('Example app listening on port ' + process.env.PORT + '!')
 })
 
 async function scrapeProfessorInfo (profInfo) {

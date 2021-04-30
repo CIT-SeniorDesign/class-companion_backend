@@ -31,7 +31,7 @@ jobs:
       - name: Run build
         run: npm run build
 
- deploy:
+  deploy:
     name: CD Pipeline
     runs-on: ubuntu-latest
     strategy:

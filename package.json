@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "nodemon": "nodemon app.js",
-    "scraper": "nodemon ./microservices/scraper.js"
+    "scraper": "nodemon scraper.js"
   },
   "repository": {
     "type": "git",

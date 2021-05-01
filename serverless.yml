@@ -14,4 +14,3 @@ functions:
     handler: scraper.handler
     events:
       - http: ANY /getprofessor
-      - http: 'ANY {proxy+}'

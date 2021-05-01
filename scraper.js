@@ -3,6 +3,7 @@ const env = require('dotenv').config()
 const axios = require('axios')
 const cheerio = require('cheerio')
 const express = require('express')
+const serverless = require('serverless-http')
 
 // Initalize express
 const app = express()
@@ -69,3 +70,6 @@ async function scrapeProfessorInfo (profInfo) {
     
     return profQuery
 }
+
+// Attach serverless framework middleware to express app
+module.exports.handler = serverless(app)

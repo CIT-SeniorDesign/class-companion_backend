@@ -12,7 +12,7 @@ app.use(express.urlencoded({
     extended: true
 }))
 
-
+// Get professor info route
 app.get('/getprofessor', async (req, res) => {
     const professorInfo = await scrapeProfessorInfo(req.query)
     return res.send(professorInfo)

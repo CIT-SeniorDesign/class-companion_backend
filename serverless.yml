@@ -1,0 +1,17 @@
+plugins:
+  - serverless-offline
+
+service: prof-scraper-microservice
+
+provider:
+  name: aws
+  runtime: nodejs14.16
+  stage: dev
+  region: us-east-1
+
+functions:
+  app:
+    handler: index.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'

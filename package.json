@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "nodemon": "nodemon app.js",
-    "scraper": "nodemon scraper.js"
+    "scraper": "nodemon ./microservices/scraper.js"
   },
   "repository": {
     "type": "git",
@@ -35,6 +35,7 @@
   "devDependencies": {
     "dotenv": "^8.2.0",
     "eslint": "^7.22.0",
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.7",
+    "serverless-offline": "^7.0.0"
   }
 }

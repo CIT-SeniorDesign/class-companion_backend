@@ -24,9 +24,9 @@ app.use(function(err, req, res, next) {
     res.end()
 });
 
-app.listen(process.env.PORT, () => {
-    console.log('Example app listening on port ' + process.env.PORT + '!')
-})
+// app.listen(process.env.PORT, () => {
+//     console.log('Example app listening on port ' + process.env.PORT + '!')
+// })
 
 async function scrapeProfessorInfo (profInfo) {
     // Atach base url to request

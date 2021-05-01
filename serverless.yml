@@ -5,13 +5,13 @@ service: prof-scraper-microservice
 
 provider:
   name: aws
-  runtime: nodejs14.16
+  runtime: nodejs14.x
   stage: dev
   region: us-east-1
 
 functions:
   app:
-    handler: index.handler
+    handler: scraper.handler
     events:
-      - http: ANY /
+      - http: ANY /getprofessor
       - http: 'ANY {proxy+}'

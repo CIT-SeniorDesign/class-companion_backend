@@ -47,12 +47,15 @@ async function scrapeProfessorInfo (profInfo) {
             
             // Search through RMP listings
             $('.TeacherCard__StyledTeacherCard-syjs0d-0', '#root').each(function (i, listing) {
+                    const cleanProfRef = listing.attribs.href.split('/')[1]
+                    const profLink = process.env.BASE_URL + cleanProfRef
                     const subjectInfo = $('.CardSchool__Department-sc-19lmz2k-0', listing).text()
                     const rating = $('.CardNumRating__CardNumRatingNumber-sc-17t4b9u-2', listing).text()
                     const reviewCount = $('.CardNumRating__CardNumRatingCount-sc-17t4b9u-3', listing).text()
 
                     // Return rating & reviewCount as object with key subject
                     listingsObj[subjectInfo] = {
+                        'profLink': profLink,
                         'rating': rating,
                         'reviewCount': reviewCount
                     }

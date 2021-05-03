@@ -47,28 +47,45 @@ async function scrapeProfessorInfo (profInfo) {
         .then(function(response) {
             // Load page into cheerio parser
             const $ = cheerio.load(response.data)
-            let listingsObj = {}
-            
-            // Search through RMP listings
-            $('.TeacherCard__StyledTeacherCard-syjs0d-0', '#root').each(function (i, listing) {
-                    const cleanProfRef = listing.attribs.href.split('/')[1]
-                    const profLink = process.env.BASE_URL + cleanProfRef
-                    const subjectInfo = $('.CardSchool__Department-sc-19lmz2k-0', listing).text()
-                    const rating = $('.CardNumRating__CardNumRatingNumber-sc-17t4b9u-2', listing).text()
-                    const reviewCount = $('.CardNumRating__CardNumRatingCount-sc-17t4b9u-3', listing).text()
 
-                    // Return rating & reviewCount as object with key subject
-                    listingsObj[subjectInfo] = {
-                        'profLink': profLink,
-                        'rating': rating,
-                        'reviewCount': reviewCount
-                    }
-                })
+            const listing = $('.TeacherCard__StyledTeacherCard-syjs0d-0', '#root')[0]
+            const cleanProfRef = listing.attribs.href.split('/')[0]
+            const profLink = process.env.BASE_URL + cleanProfRef
+
+            const rating = $('.CardNumRating__CardNumRatingNumber-sc-17t4b9u-2', listing).text()
+            const reviewCount = $('.CardNumRating__CardNumRatingCount-sc-17t4b9u-3', listing).text()
+
+            // Returns first prof listing
+            let listingObj = {
+                'profLink': profLink,
+                'rating': rating,
+                'reviewCount': reviewCount
+            }
+
+            // Returns multiple professor listings
+            // let listingsObj = {}
+
+            // Search through RMP listings
+            // $('.TeacherCard__StyledTeacherCard-syjs0d-0', '#root').each(function (i, listing) {
+            //         const cleanProfRef = listing.attribs.href.split('/')[1]
+            //         const profLink = process.env.BASE_URL + cleanProfRef
+            //         const rating = $('.CardNumRating__CardNumRatingNumber-sc-17t4b9u-2', listing).text()
+            //         const reviewCount = $('.CardNumRating__CardNumRatingCount-sc-17t4b9u-3', listing).text()
+
+            //         // Return rating & reviewCount as object with key subject
+            //         listingsObj[subjectInfo] = {
+            //             'profLink': profLink,
+            //             'rating': rating,
+            //             'reviewCount': reviewCount
+            //         }
+            //     })
 
             // Check for empty listingsObj
-            listingsObj = (Object.keys(listingsObj).length !== 0) ? listingsObj : null
-            
-            return listingsObj
+            // listingsObj = (Object.keys(listingsObj).length !== 0) ? listingsObj : null
+
+            listingObj = (Object.keys(listingObj).length !== 0) ? listingObj : null
+
+            return listingObj
         })
         .catch(function(error) {
             return error

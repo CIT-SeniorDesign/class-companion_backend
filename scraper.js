@@ -49,7 +49,7 @@ async function scrapeProfessorInfo (profInfo) {
             const $ = cheerio.load(response.data)
 
             const listing = $('.TeacherCard__StyledTeacherCard-syjs0d-0', '#root')[0]
-            const cleanProfRef = listing.attribs.href.split('/')[0]
+            const cleanProfRef = listing.attribs.href.split('/')[1]
             const profLink = process.env.BASE_URL + cleanProfRef
 
             const rating = $('.CardNumRating__CardNumRatingNumber-sc-17t4b9u-2', listing).text()

@@ -14,6 +14,6 @@ functions:
     handler: scraper.handler
     events:
       - http:
-        path: /getprofessor
-        method: get
-        cors: true
+          path: /getprofessor
+          method: GET
+          cors: true

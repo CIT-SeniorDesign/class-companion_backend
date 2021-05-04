@@ -1,21 +1,21 @@
-GET http://localhost:3000/test
+GET http://localhost:3000/users
 
 ###
 
-POST http://localhost:3000/test
+POST http://localhost:3000/users
 Content-Type: application/json
 
 {
     "name": "Ron",
-    "password": "password"
+    "password": "1234"
 }
 
 ###
 
-POST http://localhost:3000/test/login
+POST http://localhost:3000/login
 Content-Type: application/json
 
 {
-    "name": "",
-    "password": "pass"
+    "name": "Ron",
+    "password": "123"
 }

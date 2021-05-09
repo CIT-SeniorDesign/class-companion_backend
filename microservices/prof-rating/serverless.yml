@@ -16,4 +16,3 @@ functions:
       - httpApi:
           path: /getprofessor
           method: GET
-          cors: true

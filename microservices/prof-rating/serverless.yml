@@ -10,7 +10,7 @@ provider:
   region: us-east-1
 
 functions:
-  app:
+  scrape:
     handler: scraper.handler
     events:
       - httpApi:

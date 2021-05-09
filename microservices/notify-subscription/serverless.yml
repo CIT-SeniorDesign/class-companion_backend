@@ -1,7 +1,7 @@
 plugins:
   - serverless-offline
 
-service: subscription-microservice
+service: notify-subscription-microservice
 
 provider:
   name: aws
@@ -10,8 +10,8 @@ provider:
   region: us-east-1
 
 functions:
-  app:
-    handler: scraper.handler
+  subscribe:
+    handler: subscribe.handler
     events:
       - httpApi:
           path: /subscribe

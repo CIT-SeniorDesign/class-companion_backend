@@ -8,7 +8,15 @@ const serverless = require('serverless-http')
 
 // Initalize express w/ dependencies
 const app = express()
-app.use(cors())
+
+// Include global CORS policy & attach CORS middleware
+const corsOptions = {
+    origin: '*',
+    allowedHeaders: ['Access-Control-Allow-Headers, Origin, X-Requested-With, Content-Type, Accept']
+}
+app.use(cors(corsOptions))
+
+// Validate sender request
 app.use(express.json())
 app.use(express.urlencoded({
     extended: true
@@ -18,14 +26,6 @@ app.use(express.urlencoded({
 app.get('/getprofessor', async (req, res) => {
     const professorInfo = await scrapeProfessorInfo(req.query)
     return res.send(professorInfo)
-})
-
-// CORS middleware
-app.use(function(res, next) {
-    res.header("Access-Control-Allow-Origin", "*")
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-    
-    next()
 })
 
 // Error handling middleware

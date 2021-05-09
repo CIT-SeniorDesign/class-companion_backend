@@ -10,9 +10,15 @@ provider:
   region: us-east-1
 
 functions:
-  subscribe:
+  test:
     handler: subscribe.handler
     events:
       - httpApi:
-          path: /subscribe
+          path: /test
+          method: post
+  verify:
+    handler: subscribe.handler
+    events:
+      - httpApi:
+          path: /verifyemail
           method: post

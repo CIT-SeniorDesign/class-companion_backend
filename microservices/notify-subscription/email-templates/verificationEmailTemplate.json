@@ -1,0 +1,8 @@
+{
+    "TemplateName": "VerifyTemplate",
+    "FromEmailAddress": "notifybrianlinggadjaja@gmail.com",
+    "TemplateSubject": "CSUN Class Companion - Verify your Email!",
+    "TemplateContent": "<html><head></head><body style='font-family:sans-serif;'><p>We require your verification & permission to subscribe you to any future/current email notifications for the Class Companion Web-App.</p></body></html>",
+    "SuccessRedirectionURL": "https://cit-seniordesign.github.io/class-companion_frontend/",
+    "FailureRedirectionURL": "https://cit-seniordesign.github.io/class-companion_frontend/"
+}

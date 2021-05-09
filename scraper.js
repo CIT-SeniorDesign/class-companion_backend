@@ -1,12 +1,14 @@
 // Base libraries
 const env = require('dotenv').config()
+const cors = require('cors')
 const axios = require('axios')
 const cheerio = require('cheerio')
 const express = require('express')
 const serverless = require('serverless-http')
 
-// Initalize express
+// Initalize express w/ dependencies
 const app = express()
+app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({
     extended: true
@@ -18,14 +20,22 @@ app.get('/getprofessor', async (req, res) => {
     return res.send(professorInfo)
 })
 
-// Global error handler
-app.use(function(err, req, res, next) {
+// CORS middleware
+app.use(function(res, next) {
+    res.header("Access-Control-Allow-Origin", "*")
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+    
+    next()
+})
+
+// Error handling middleware
+app.use(function(err, res) {
     res.status(err.status || 500)
     res.end()
-});
+})
 
 // Check if running on dev environment before attaching port
-if (process.env.NODE_ENV === 'dev') {
+if (process.env.NODE_ENV === 'instance') {
     app.listen(process.env.PORT, () => {
         console.log('Example app listening on port ' + process.env.PORT + '!')
     })

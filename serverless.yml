@@ -13,7 +13,7 @@ functions:
   app:
     handler: scraper.handler
     events:
-      - http:
+      - httpApi:
           path: /getprofessor
           method: GET
           cors: true

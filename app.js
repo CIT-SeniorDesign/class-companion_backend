@@ -1,109 +1,109 @@
 // loads environment variables from .env
-if (process.env.NODE_ENV !=='production'){ // if the environment is development include env file
-    require('dotenv').config(); // this will load all environment processes
-}
-
-// Dependencies
+require('dotenv').config();
+/**
+ * -----------------DEPENDENCIES-------------------
+ */
 const express = require('express');
 const path = require('path');
-const passport = require('passport');
-const bodyParser = require('body-parser');
-const LocalStrategy = require('passport-local');
+const mysql = require('mysql');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
+const jwt = require('jsonwebtoken');
 
+/**
+ * --------------GENERAL SETUP---------------------
+ */
 const app = express();
 
-// // File imports
-const initializePassport = require('./configure/passport-configure');
-initializePassport(
-    passport, // configures passport  
-    email => users.find(user => user.email === email), // set user to user.email and make it set to email
-    id => user.find(user => user.id === id)
-);
-
-// Test User Authentication
-let users = [];
-
-// This allows input to be accessed through requests and POSTS
-app.use(express.urlencoded({ extended: false }))
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false, // this does not change session variable if nothing is changed
-    saveUninitalized: false // does not save empty value into the session
-}))
-app.use(passport.initialize()) // sets up initial basic configuration of passport
-app.use(passport.session()) // itneracts with the app.use session above
-app.use(express.json()) // TESTING PURPOSES
+app.use(express.json()) // Allows file to read JSON 
 
 
-// Routes
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname + '/views/home.html'));
+/**
+ * --------------DATABASE CONFIG-----------------
+ */
+const db = mysql.createConnection({
+    host: process.env.DATABASE_HOST,
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWORD,
+    database: process.env.DATABASE
+});
+
+
+/**
+ * ----------------GET ROUTES ------------------------
+ */
+app.get('/users', (req, res) => {
+    console.log(users);
 }); 
 
-// Register routes
-app.get('/test', (req, res) => {
-    res.json(users); // return users array
-}); 
-
-app.post('/test', async (req, res) => {
-    try{
-        const hashedPassword = await bcrypt.hash(req.body.password, 10) // create hashed password
-        console.log(hashedPassword)
-        const user = { name: req.body.name, password: hashedPassword } // get name and password 
-        users.push(user) // push user into users array
-        res.status(201).send() // if done successfully send 201 status
-    } catch{
-        res.status(500).send() // else send 500 status 
-    }
-})
-
-app.post('/test/login', async (req, res) => {
-    const user = users.find(user => user.name = req.body.name)
-    if (user == null) {
-        return res.status(400).send('Cannot find user') // if user is null send user not found
-    }
-    try{
-        if (await bcrypt.compare(req.body.password, user.password)){ // compare hashed password with inputted password
-            res.send('Success')
-        } else {
-            res.send('Not Allowed')
-        }
+/**
+ * -----------------POST ROUTES------------------------
+ */
+app.post('/register', async (req, res) =>{
+    try {
+        // Generate salt
+        const salt = await bcrypt.genSalt()
+        // Generate hashed password
+        const hashedPassword = await bcrypt.hash(req.body.password, salt)
+        // New user schema
+        const createUser = { 
+            email: req.body.email, 
+            password: hashedPassword,
+            };
+        //  Adding info to database
+        db.query('INSERT INTO users SET ?', createUser, function (error, results, fields){
+            if (error) {
+                res.status(500).send('Error occured with mysql')
+            } else {
+                res.status(201).send('Created Successfully')
+            }
+        });
     } catch {
         res.status(500).send()
     }
 })
 
-// app.post('/register', async (req, res) => {
-//     try {
-//         // This will hash users password and store into users array
-//         console.log(req.body);
-//         let hashedPassword = await bcrypt.hash(req.body.password, 10);
+app.post('/login', async (req, res) => {
+    try{
+        const inputEmail = req.body.email;
+        const inputPassword = req.body.password;
 
-//         // push user data into 
-//         users.push({
-//             id: Date.now().toString(),
-//             name: req.body.name,
-//             email: req.body.email,
-//             password: hashedPassword
-//             })
-//         res.redirect('/login') // Redirect to login after registering
-//     } catch {
-//         res.redirect('/register') // If failed redirect to register
-//     }
-//     console.log(users);
-// })
+        // If there is no email; return an error
+        if(!inputEmail || !inputPassword){
+            return res.status(400).send('Please provide email and password')
+        }
+        // Fetch email and password
+        db.query('SELECT * FROM users WHERE email = ?', [inputEmail], async (error, results) => {
+            // if email or password is incorrect; deny access
+            if (!results || !(await bcrypt.compare(inputPassword, results[0].password) )){
+                res.status(401).send('Email or password is incorrect')
+            } else {
+                // if found in database allow access
+                // implement JWT here
+                res.status(500).send('Connected successfully!');
+            }
+        })
 
-// app.get('/login', (req, res) => {
-//     res.sendFile(path.join(__dirname + '/views/login.html'));
-// });
+    }catch(error){
+        console.log(error);
+    }
+})
 
-// app.post('/login', passport.authenticate('local', {
-//     successRedirect: '/', // redirect to successful login 
-//     failureRedirect: '/login', // redirect to failed login
-// }))
+/**
+ * --------------- FUNCTIONS -------------------
+ */
+function generateAccessToken(username){
+    return jwt.sign(username, process.env.ACCESS_TOKEN_SECRET, {expriesIn: '1800s'});
+};
+
+function verifyToken(req, res, next){
+    // auth header
+    const bearerHeader = req.headers['authorization'];
+
+};
 
 
-// calls port to listen to 
+/**
+ * ----------------SERVER-----------------------
+ */
 app.listen(3000, ()=> console.log('Server running on http://localhost:3000'));

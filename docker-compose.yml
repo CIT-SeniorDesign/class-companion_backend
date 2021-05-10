@@ -1,0 +1,22 @@
+# Define latest docker schema
+version: '3.8'
+services:
+    # Name service
+    scraper_microservice:
+        # Set container restart always
+        restart: always
+        # Build from current path
+        build:
+            context: .
+        # Set app directory
+        working_dir: /app
+        # Volume map paths from current directory
+        volumes:
+        - ./:/app
+        # Define service image from node sub-set "slim" image
+        image: node:16-buster-slim
+        # Run scraper command defined from package.json
+        command: sh -c "npm run scraper"
+        # Map internal port 3000 to external container port 3000
+        ports: 
+            - "3000:3000"

@@ -1,7 +1,5 @@
 // loads environment variables from .env
-if (process.env.NODE_ENV !=='production'){ // if the environment is development include env file
-    require('dotenv').config(); // this will load all environment processes
-}
+require('dotenv').config();
 /**
  * -----------------DEPENDENCIES-------------------
  */
@@ -9,13 +7,13 @@ const express = require('express');
 const path = require('path');
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
+const session = require('express-session');
+const jwt = require('jsonwebtoken');
 
 /**
  * --------------GENERAL SETUP---------------------
  */
 const app = express();
-
-const users = [];
 
 app.use(express.json()) // Allows file to read JSON 
 
@@ -23,11 +21,11 @@ app.use(express.json()) // Allows file to read JSON
 /**
  * --------------DATABASE CONFIG-----------------
  */
-let connection = mysql.createConnection({
-    host: "localhost",
-    user: "rs-217",
-    password: "$udoPowers37",
-    database:'node_app'
+const db = mysql.createConnection({
+    host: process.env.DATABASE_HOST,
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWORD,
+    database: process.env.DATABASE
 });
 
 
@@ -35,62 +33,74 @@ let connection = mysql.createConnection({
  * ----------------GET ROUTES ------------------------
  */
 app.get('/users', (req, res) => {
-    res.send(users);
+    console.log(users);
 }); 
-
-// app.get('/register', (req, res) =>{
-//     res.sendFile('../views/register.html');
-// })
-
-// app.get('/login', (req, res, next)=>{
-//     const form = '<h1>Login Here</h1><form method="post" action="login">\
-//                     Username:<br><input type="username" name="username">\
-//                     <br> Password:<br><input type="password" name="password">\
-//                     <br><br><input type="submit" value="Submit"></form>'
-
-//     res.send(form)
-// })
 
 /**
  * -----------------POST ROUTES------------------------
  */
-app.post('/users', async (req, res) =>{
+app.post('/register', async (req, res) =>{
     try {
+        // Generate salt
         const salt = await bcrypt.genSalt()
+        // Generate hashed password
         const hashedPassword = await bcrypt.hash(req.body.password, salt)
-        const user = { name: req.body.name, password: hashedPassword }
-        users.push(user)
-        res.status(201).send()
+        // New user schema
+        const createUser = { 
+            email: req.body.email, 
+            password: hashedPassword,
+            };
+        //  Adding info to database
+        db.query('INSERT INTO users SET ?', createUser, function (error, results, fields){
+            if (error) {
+                res.status(500).send('Error occured with mysql')
+            } else {
+                res.status(201).send('Created Successfully')
+            }
+        });
     } catch {
         res.status(500).send()
     }
 })
 
 app.post('/login', async (req, res) => {
-    const user = users.find(user => user.name = req.body.name)
+    try{
+        const inputEmail = req.body.email;
+        const inputPassword = req.body.password;
 
-    // Find user in array
-    if (user == null) {
-        return res.status(400).send('Cannot find user');
-    }
-    try {
-        if (await bcrypt.compare (req.body.password, user.password)){
-            res.send('Success');
-        } else {
-            res.send('Not Allowed');
+        // If there is no email; return an error
+        if(!inputEmail || !inputPassword){
+            return res.status(400).send('Please provide email and password')
         }
-    } catch {
-        res.status(500).send();
+        // Fetch email and password
+        db.query('SELECT * FROM users WHERE email = ?', [inputEmail], async (error, results) => {
+            // if email or password is incorrect; deny access
+            if (!results || !(await bcrypt.compare(inputPassword, results[0].password) )){
+                res.status(401).send('Email or password is incorrect')
+            } else {
+                // if found in database allow access
+                // implement JWT here
+                res.status(500).send('Connected successfully!');
+            }
+        })
+
+    }catch(error){
+        console.log(error);
     }
 })
 
-// app.post('/register', function(req, res, next) {
-//     // const user = {name: req.body.name, password: req.body.password}
-//     console.log(req.body.username, req.body.password)
-    
-//     res.redirect('/login');
-// });
+/**
+ * --------------- FUNCTIONS -------------------
+ */
+function generateAccessToken(username){
+    return jwt.sign(username, process.env.ACCESS_TOKEN_SECRET, {expriesIn: '1800s'});
+};
 
+function verifyToken(req, res, next){
+    // auth header
+    const bearerHeader = req.headers['authorization'];
+
+};
 
 
 /**

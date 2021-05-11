@@ -9,6 +9,7 @@ const mysql = require('mysql');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 /**
  * --------------GENERAL SETUP---------------------
@@ -16,6 +17,7 @@ const jwt = require('jsonwebtoken');
 const app = express();
 
 app.use(express.json()) // Allows file to read JSON 
+// app.use(cookieParser); // Allows to set up cookies into browser
 
 
 /**
@@ -32,35 +34,51 @@ const db = mysql.createConnection({
 /**
  * ----------------GET ROUTES ------------------------
  */
-app.get('/users', (req, res) => {
-    console.log(users);
-}); 
+app.get('/', (req, res)=>{
+    res.send('Welcome to the homepage');
+});
+
+app.get('/register', (req,res) => {
+    res.sendFile('/home/ronny/Documents/GIT_local/class-companion_backend/views/register.html')
+});
+
+app.get('/login', (req,res)=>{
+    res.sendFile('/home/ronny/Documents/GIT_local/class-companion_backend/views/login.html')
+})
 
 /**
  * -----------------POST ROUTES------------------------
  */
-app.post('/register', async (req, res) =>{
-    try {
-        // Generate salt
-        const salt = await bcrypt.genSalt()
-        // Generate hashed password
-        const hashedPassword = await bcrypt.hash(req.body.password, salt)
-        // New user schema
-        const createUser = { 
-            email: req.body.email, 
-            password: hashedPassword,
-            };
-        //  Adding info to database
-        db.query('INSERT INTO users SET ?', createUser, function (error, results, fields){
-            if (error) {
-                res.status(500).send('Error occured with mysql')
-            } else {
-                res.status(201).send('Created Successfully')
-            }
-        });
-    } catch {
-        res.status(500).send()
-    }
+app.post('/register', (req, res) =>{
+    const regEmail = req.body.email;
+    const regPass = req.body.password;
+
+    console.log(regEmail, regPass)
+    
+    // try {
+
+    //     // Generate salt
+    //     const salt = await bcrypt.genSalt()
+    //     // Generate hashed password
+    //     const hashedPassword = await bcrypt.hash(req.body.password, salt)
+    //     // New user schema
+    //     const createUser = { 
+    //         email: req.body.email, 
+    //         password: hashedPassword,
+    //         };
+    //     //  Adding info to database
+    //     db.query('INSERT INTO users SET ?', createUser, function (error, results, fields){
+    //         if (error) {
+    //             res.status(500).send('Error occured with mysql')
+    //         } else {
+    //             res.status(201).send('Created Successfully')
+    //         }
+        
+    //     res.redirect('/login');
+    //     });
+    // } catch {
+    //     res.status(500).send()
+    // }
 })
 
 app.post('/login', async (req, res) => {
@@ -79,8 +97,24 @@ app.post('/login', async (req, res) => {
                 res.status(401).send('Email or password is incorrect')
             } else {
                 // if found in database allow access
-                // implement JWT here
                 res.status(500).send('Connected successfully!');
+                // Generate JWT token
+                const token = jwt.sign({inputEmail}, process.env.ACCESS_TOKEN_SECRET);
+
+                console.log('The access token is: ' + token);
+
+                const cookieOptions = {
+                    expires: new Date(
+                        // Expires in 1 day (must convert into miliseconds)
+                        Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000
+                    ),
+                    // this only allows cookies to be stored if in http
+                    // httpOnly: true
+                }
+                // Names cookie as jwt and pass through token with cookie options
+                res.cookie('jwt', token, cookieOptions)
+                res.status(200).redirect('/')
+
             }
         })
 
@@ -92,9 +126,6 @@ app.post('/login', async (req, res) => {
 /**
  * --------------- FUNCTIONS -------------------
  */
-function generateAccessToken(username){
-    return jwt.sign(username, process.env.ACCESS_TOKEN_SECRET, {expriesIn: '1800s'});
-};
 
 function verifyToken(req, res, next){
     // auth header

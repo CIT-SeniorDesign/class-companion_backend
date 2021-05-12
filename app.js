@@ -17,7 +17,8 @@ const cookieParser = require('cookie-parser');
 const app = express();
 
 app.use(express.json()) // Allows file to read JSON 
-// app.use(cookieParser); // Allows to set up cookies into browser
+app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser()); // Allows to set up cookies into browser
 
 
 /**
@@ -49,39 +50,31 @@ app.get('/login', (req,res)=>{
 /**
  * -----------------POST ROUTES------------------------
  */
-app.post('/register', (req, res) =>{
-    const regEmail = req.body.email;
-    const regPass = req.body.password;
-
-    console.log(regEmail, regPass)
-    
-    // try {
-
-    //     // Generate salt
-    //     const salt = await bcrypt.genSalt()
-    //     // Generate hashed password
-    //     const hashedPassword = await bcrypt.hash(req.body.password, salt)
-    //     // New user schema
-    //     const createUser = { 
-    //         email: req.body.email, 
-    //         password: hashedPassword,
-    //         };
-    //     //  Adding info to database
-    //     db.query('INSERT INTO users SET ?', createUser, function (error, results, fields){
-    //         if (error) {
-    //             res.status(500).send('Error occured with mysql')
-    //         } else {
-    //             res.status(201).send('Created Successfully')
-    //         }
-        
-    //     res.redirect('/login');
-    //     });
-    // } catch {
-    //     res.status(500).send()
-    // }
+app.post('/register', async (req, res) =>{
+    try {
+        // Generate salt
+        const salt = await bcrypt.genSalt()
+        // Generate hashed password
+        const hashedPassword = await bcrypt.hash(req.body.password, salt)
+        // New user schema
+        const createUser = { 
+            email: req.body.email, 
+            password: hashedPassword,
+            };
+        //  Adding info to database
+        db.query('INSERT INTO users SET ?', createUser, function (error, results, fields){
+            if (error) {
+                res.status(500).send('Error occured with mysql')
+            } else {
+                res.status(201).redirect('/login');
+            }
+        });
+    } catch {
+        res.status(500).send()
+    }
 })
 
-app.post('/login', async (req, res) => {
+app.post('/login', async(req, res) => {
     try{
         const inputEmail = req.body.email;
         const inputPassword = req.body.password;
@@ -94,10 +87,10 @@ app.post('/login', async (req, res) => {
         db.query('SELECT * FROM users WHERE email = ?', [inputEmail], async (error, results) => {
             // if email or password is incorrect; deny access
             if (!results || !(await bcrypt.compare(inputPassword, results[0].password) )){
-                res.status(401).send('Email or password is incorrect')
+                res.status(401)//.send('Email or password is incorrect')
             } else {
                 // if found in database allow access
-                res.status(500).send('Connected successfully!');
+                res.status(500)//.send('Connected successfully!');
                 // Generate JWT token
                 const token = jwt.sign({inputEmail}, process.env.ACCESS_TOKEN_SECRET);
 
@@ -109,11 +102,12 @@ app.post('/login', async (req, res) => {
                         Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000
                     ),
                     // this only allows cookies to be stored if in http
-                    // httpOnly: true
+                    httpOnly: true
                 }
+
                 // Names cookie as jwt and pass through token with cookie options
-                res.cookie('jwt', token, cookieOptions)
-                res.status(200).redirect('/')
+                res.cookie('jwt', token, cookieOptions);
+                res.status(200).redirect('/');
 
             }
         })

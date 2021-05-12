@@ -32,7 +32,6 @@
     "mysql": "^2.18.1",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
-    "rmp-api": "0.0.1-security",
     "serverless-http": "^2.7.0"
   },
   "devDependencies": {

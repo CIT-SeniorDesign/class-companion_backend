@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'aws-codedeploy',
-      script: 'npm',
+      script: 'npx',
       args: 'run nodemon',
       interpreter: 'none',
       env: {

@@ -1,5 +1,5 @@
 # Use node docker image from sub-set "slim"
-FROM node:16-buster-slim
+FROM node:20-buster-slim
 
 # Set working app directory
 WORKDIR /app
